@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+   <mapper namespace="com.yoriwiki.spring.persistence.AdminMapper">
+   
+
+	  <select id="getReserveExcel" parameterType="BoardVO"  resultType="BoardVO">
+	    SELECT *
+			FROM board
+			WHERE yna = 'A'
+	  </select>
+	  
+	  <select id="getBoard" parameterType="BoardVO"  resultType="BoardVO">
+	    SELECT *
+			FROM board
+			WHERE yna = 'A'
+	  </select>
+	  
+	  
+		
+		<!--  총 게시물 개수조회  -->
+		<select id="searchTotalCount" resultType="int">
+		    SELECT count(*)
+			    FROM(
+			        SELECT ROWNUM rn
+			        			,a.*
+			                FROM(
+			                SELECT
+			                	board_num
+				                ,category
+				                ,title
+				                ,introduce
+				                ,time
+				                ,diff
+				                ,source
+				                ,ingre
+				                ,choice_ingre
+				                ,hit
+				                ,src
+				                ,reg_dt
+				                ,mod_dt
+				                ,(select user_name
+				                		from users
+				                		where b.user_num = user_num) as userName
+		                		,(select path
+		                				from board_media
+		                				where b.board_num = board_num) as path
+		                FROM board b
+		                WHERE b.yna = 'A'
+		                ) a
+		                <if test="type != null and type != ''">
+		                where
+			                <if test="type == 'title'">title like '%' || #{keyword} || '%'</if>
+			                <if test="type == 'userName'">a.userName like '%' || #{keyword} || '%'</if>
+			                <if test="type == 'introduce'">introduce like '%' || #{keyword} || '%' 
+			                							OR source like '%' || #{keyword} || '%'
+			                							OR choice_ingre like '%' || #{keyword} || '%' 
+			                							OR ingre like '%' || #{keyword} || '%'</if>
+			                <if test="type == 'name'">name like '%' || #{keyword} || '%'</if>
+			            </if>
+			                )      
+    	</select>
+		
+		<!--<select id="getListByPaging" resultType="BoardVO">
+  	 		<![CDATA[
+  	 			SELECT *
+				    FROM(
+				        SELECT 
+				                ROWNUM rn
+				                ,board_num
+				                ,category
+				                ,title
+				                ,introduce
+				                ,time
+				                ,diff
+				                ,source
+				                ,ingre
+				                ,choice_ingre
+				                ,hit
+				                ,src
+				                ,reg_dt
+				                ,mod_dt
+				                FROM board
+				                    AND ROWNUM <= (#{pageNum} * #{amount})
+				                )
+			        WHERE rn > (  ( #{pageNum} - 1 )  *  #{amount} )
+				]]>
+  	 	</select>  -->
+  	 	
+  	 	 <select id="getListByPaging" resultType="BoardVO">
+  	 		<![CDATA[
+  	 			SELECT *
+				    FROM(
+				        SELECT 
+			                ROWNUM rn
+			                ,board_num
+			                ,category
+			                ,title
+			                ,introduce
+			                ,time
+			                ,diff
+			                ,source
+			                ,ingre
+			                ,choice_ingre
+			                ,hit
+			                ,src
+			                ,reg_dt
+			                ,mod_dt
+			                ,(select user_name from users where b.user_num = user_num) as userName
+			                ,(select file_name from board_media where b.board_num = board_num and step = 0 and order_no = 1) as path
+			                FROM board b
+			                WHERE b.yna = 'A'
+			                )
+			        WHERE ( #{amount} * (#{pageNum} - 1)) < rn AND rn <= (#{amount} * #{pageNum})
+		]]>
+  	 	</select>
+		
+		<select id="searchListByPaging" resultType="BoardVO">
+		    SELECT *
+			    FROM(
+			        SELECT ROWNUM rn
+			        			,a.*
+			                FROM(
+			                SELECT
+			                	board_num
+				                ,category
+				                ,title
+				                ,introduce
+				                ,time
+				                ,diff
+				                ,source
+				                ,ingre
+				                ,choice_ingre
+				                ,hit
+				                ,src
+				                ,reg_dt
+				                ,mod_dt
+				                ,(select user_name
+				                		from users
+				                		where b.user_num = user_num ) as userName
+		                		,(select path || file_name
+		                				from board_media
+		                				where b.board_num = board_num and step = 0 and order_no = 1) as path
+		                FROM board b
+		                WHERE b.yna = 'A'
+		                ) a
+		                
+		               <if test="type != null and keyword != null and type != '' and keyword != ''">
+			                WHERE
+			                
+			                <if test="type == 'title'">title like '%' || #{keyword} || '%'</if>
+			                <if test="type == 'userName'">a.userName like '%' || #{keyword} || '%'</if>
+			                <if test="type == 'introduce'">introduce like '%' || #{keyword} || '%'</if>
+			                <if test="type == 'name'">name like '%' || #{keyword} || '%'</if>
+			            </if>
+			            <if test="order != null">
+			            ORDER BY
+				            <if test = "order == 'title'">title ASC</if>
+				            <if test = "order == 'userName'">a.userName ASC</if>
+				            <if test = "order == 'reg_dt'">reg_dt DESC</if>
+				            <if test = "order == 'mod_dt'">mod_dt DESC</if>
+			            </if>
+			            
+			            			                ) 
+			    <![CDATA[
+			    WHERE ( #{amount} * (#{pageNum} - 1)) < rn AND rn <= (#{amount} * #{pageNum})
+	 			]]>
+	 	</select>
+
+	
+	<update id="deletePost">
+		UPDATE board 
+		SET	yna = 'N'
+		WHERE board_num = #{boardNum}
+	</update>
+	
+	<update id="updatePost">
+		UPDATE board 
+		SET	yna = 'Y'
+		WHERE board_num = #{boardNum}
+	</update>
+</mapper>

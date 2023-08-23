@@ -1,0 +1,97 @@
+plugins {
+	id 'java'
+	id 'war'
+	id 'org.springframework.boot' version '2.7.10'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'com.yoriwiki'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+		all {
+		      //logback과 충돌방지
+		      	exclude group:'org.spring.framework.boot', module : 'spring-boot-starter-logging'
+		       exclude group: 'ch.qos.logback', module: 'logback-classic'
+		       exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+		    }
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation ('org.springframework.boot:spring-boot-starter-test')
+	{
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+
+	runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+	
+	//spring mvc setting
+	implementation group: 'javax.servlet', name: 'jstl', version: '1.2'
+	implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '9.0.71'
+	// https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8
+	//implementation group: 'com.oracle.database.jdbc', name: 'ojdbc8', version: '19.3.0.0'
+	
+	//mybatis-boot
+	implementation group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: '1.3.2'
+	
+	//log4jdbc-log4j2 -> DriverSpy
+	implementation group: 'org.bgee.log4jdbc-log4j2', name: 'log4jdbc-log4j2-jdbc4.1', version: '1.16'
+	
+	// 추가 spring-boot-starter 취약점 추가 업데이트
+   implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+   implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.15.0'
+   implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.15.0'
+   implementation group: 'org.apache.logging.log4j', name: 'log4j-jul', version: '2.15.0'
+   implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.15.0'
+   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+   implementation group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.32'
+   
+   //zxing qr코드 생성
+   // https://mvnrepository.com/artifact/com.google.zxing/core
+	implementation group: 'com.google.zxing', name: 'core', version: '3.1.0'
+	// https://mvnrepository.com/artifact/com.google.zxing/javase
+	implementation group: 'com.google.zxing', name: 'javase', version: '3.5.0'
+	
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2'
+	implementation group: 'com.google.code.gson', name: 'gson', version: '2.9.0'
+	
+	//jpa
+	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.6.6'
+	
+	//apache.poi 추가(엑셀추출)
+    implementation group: 'org.apache.poi', name: 'poi-scratchpad', version: '3.9'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.9'
+    
+    //file업로드
+   implementation 'commons-io:commons-io:2.11.0'
+   implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+   //email인증	
+    implementation 'javax.mail:javax.mail-api:1.6.2'
+    implementation 'com.sun.mail:javax.mail:1.6.2'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'	
+    
+   //시큐리티
+   implementation 'org.springframework.boot:spring-boot-starter-security'
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

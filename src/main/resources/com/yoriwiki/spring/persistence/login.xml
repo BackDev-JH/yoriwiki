@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+   <mapper namespace="com.yoriwiki.spring.persistence.LoginMapper">
+
+  <select id="logincount" resultType="UserVO">
+    SELECT *
+    FROM users
+    WHERE user_id = #{userId}
+  </select>
+  
+  <select id="getUserByEmail" resultType="UserVO">
+    SELECT user_num
+    		,user_id
+    		,user_email
+    		,user_name
+    		,admin_yn
+    		,platfomtype    			
+    	 FROM users WHERE user_email = #{userEmail}
+  </select>
+  
+  <select id = "findpassword" resultType="String">
+  	SELECT user_password
+	FROM users
+	WHERE user_name = #{user_name} and user_email = #{user_email}
+  </select>
+  
+  <select id = "findid" resultType="String">
+  	SELECT user_id
+	FROM users
+	WHERE user_email = #{USER_EMAIL} AND user_phone = #{USER_PHONE}
+  </select>
+  
+  <select id="info" resultType="UserVO">
+    SELECT user_email
+    FROM users
+    WHERE user_no = #{user_no}    
+  </select>
+  
+  <select id="info1" resultType="UserVO">
+    SELECT users.user_email
+		FROM users
+	INNER JOIN carpool ON users.user_no = carpool.users_user_no
+	INNER JOIN crew ON carpool.carpool_no = crew.carpool_carpool_no
+	INNER JOIN crew_members ON crew.crew_no = crew_members.crew_crew_no
+		WHERE crew_members.is_leader = 0
+		AND crew_members.user_user_no = #{user_no}    
+  </select>
+  
+  <update id="saveUserInfo">
+	  UPDATE users
+	  SET 
+	    user_phone = #{USER_PHONE},
+	    user_name = #{USER_NAME},
+	    user_email = #{USER_EMAIL},
+	    user_password = #{USER_NEWPASSWORD}
+	  WHERE user_no = #{USER_NO} AND user_password = #{USER_PASSWORD}
+	</update>
+  
+  <delete id="deleteUser">
+  
+  	DELETE FROM users
+	WHERE user_no = #{USER_NO}
+  	
+  </delete>
+  
+  <update id = "PwUpdate" parameterType="UserVO">
+	update users set user_password = #{userPassword} where user_email = #{userEmail}
+  </update>
+</mapper>

@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoriwiki.spring.persistence.BoardMapper">
+	<select id="selectList" resultType="BoardVO">
+		SELECT
+			*
+		FROM board
+		WHERE yna = 'Y'
+	</select>
+	
+	<select id="selectBoardHashTag" resultType="String">
+	SELECT 
+    	LISTAGG(name, ',') WITHIN GROUP(ORDER BY name) AS result
+	FROM hashtag
+	where board_num = #{boardNum}
+	</select>
+	
+	<select id="selectBoardFile" resultType="BoardMediaVO">
+		SELECT
+    		* 
+		FROM board_media
+		WHERE board_num = #{boardNum}
+		
+		<if test="gubun == 0">
+			AND step = 0
+			ORDER BY order_no
+		</if>
+		
+		<if test="gubun == 1">
+			AND step != 0
+			AND step != -1
+			ORDER BY step
+		</if>
+		
+		<if test="gubun == 2">
+			AND step = -1
+			ORDER BY order_no
+		</if> 
+	</select>
+
+	
+	<insert id="insertBoard" parameterType="BoardVO" useGeneratedKeys="true" keyProperty="boardNum" keyColumn="boardNum">
+		<selectKey keyProperty="boardNum" order="BEFORE" resultType="int">
+			SELECT boardNum_seq.nextval FROM dual
+		</selectKey>
+		INSERT INTO board
+		(
+		 board_num
+		,user_num
+		,category
+		,title
+		,introduce
+		,time
+		,diff
+		,source
+		,ingre
+		,choice_ingre
+		,src
+		)
+		VALUES (
+		 #{boardNum}
+		,#{userNum}
+		,#{category}
+		,#{title}
+		,#{introduce}
+		,#{time}
+		,#{diff}
+		,#{source}
+		,#{ingre}
+		,#{choiceIngre}
+		,#{src}
+		)
+	</insert>
+
+	<!-- BoardMediaVO 관련 쿼리 -->
+	<insert id="insertBoardMedia" parameterType="BoardMediaVO" useGeneratedKeys="true" keyProperty="mediaNum" keyColumn="mediaNum">
+		<selectKey keyProperty="mediaNum" order="BEFORE" resultType="int">
+			SELECT mediaNum_Seq.nextval FROM dual
+		</selectKey>
+		INSERT INTO board_media
+		(
+		 media_num
+		,board_num
+		,file_name
+		,path
+		,step
+		,order_no
+		,content
+		)
+		VALUES (
+		 #{mediaNum}
+		,#{boardNum}
+		,#{fileName}
+		,#{path}
+		,#{step}
+		,#{orderNo}
+		,#{content}
+		)
+	</insert>
+	
+	<!-- HashTagVO 관련 쿼리 -->
+	<insert id="insertHashTag" parameterType="HashTagVO" useGeneratedKeys="true" keyProperty="tagNum" keyColumn="tagNum">
+	
+	<selectKey keyProperty="tagNum" order="BEFORE" resultType="int">
+		SELECT hashTag_seq.nextval FROM dual
+	</selectKey>
+	
+		INSERT INTO HASHTAG
+		(
+		 tag_num
+		,board_num
+		,name
+		)
+		VALUES 
+		(
+		 #{tagNum}
+		,#{boardNum}
+		,#{name}
+		)
+	</insert>
+	
+	<update id="deleteBoard">
+	    UPDATE board SET 
+		<if test='adminYn == "Y"'>
+			yna = 'A'
+		</if>
+		<if test='adminYn != "Y"'>
+			yna = 'N'
+		</if>
+		where board_num = #{boardNum} 
+	</update>
+	
+	
+	<!-- 수정 관련 -->
+	<update id="updateBoard">
+	    UPDATE board SET 
+				 category 	 = #{category}  
+				,title	     = #{title}    
+				,introduce   = #{introduce} 
+				,time		 = #{time}                    
+				,diff        = #{diff}  
+				,source      = #{source} 
+				,ingre       = #{ingre} 
+				,choice_ingre= #{choiceIngre} 
+				,src         = #{src}         
+				,mod_dt		 = sysdate                          
+		where board_num = #{boardNum} 
+	</update>
+	
+	<update id="updateBoardMedia">
+	    UPDATE board_media SET 
+			 step	  = #{step}
+			,file_name = #{fileName}        
+			,order_no  = #{orderNo}        
+			,content   = #{content}                        
+		where media_num = #{mediaNum} 
+	</update>
+	
+	<delete id="deleteBoardMedia">
+		  DELETE FROM board_media WHERE media_num = #{mediaNum}
+	</delete>
+	
+	<delete id="deleteBoardHashTag">
+		  DELETE FROM HashTag WHERE board_num = #{boardNum}
+	</delete>
+	
+	<select id="selectUploadOP" resultType="UploadVO">
+	
+	SELECT
+    	 id
+		,max_size
+		,allowed_extensions
+		,max_upload_count
+	FROM upload_options
+	WHERE ID = #{type}
+	
+	</select>
+	
+	<!--  준혁   -->
+	<select id="selectBoard" resultType="BoardVO">
+			SELECT 
+				(SELECT user_name FROM users u WHERE b.user_num = u.user_num) AS "userName"
+				,(SELECT COUNT(*) FROM comments c WHERE board_num = #{boardNum} AND use_yn = 'Y') AS "commentCnt"
+				,b.* 
+				FROM board b
+				WHERE board_num = #{boardNum}
+				
+		</select>
+		
+		<select id="myName" resultType="String">
+			SELECT user_name FROM users WHERE user_num = #{userNum} 
+		</select>
+		
+		
+		<select id="selectBoardMedia" resultType="BoardMediaVO">
+			 SELECT
+			          * 
+			      FROM board_media
+			      WHERE board_num = #{boardNum}
+			      
+			      <if test="gubun == 0">
+			         AND step = 0
+			         ORDER BY order_no
+			      </if>
+			      
+			      <if test="gubun == 1">
+			         AND step != 0
+			         AND step != -1
+			         ORDER BY step
+			      </if>
+			      
+			      <if test="gubun == 2">
+			         AND step = -1
+			         ORDER BY order_no
+			      </if> 
+		</select>
+		
+		<select id="selectBoardComment" resultType="CommentsVO">
+			SELECT
+				(SELECT user_name FROM users u WHERE c.user_num = u.user_num) userName
+    			,c.* 
+    			FROM comments c 
+    				WHERE board_num = #{boardNum}
+    				AND use_yn = 'Y'
+    				ORDER BY reg_dt
+		</select>
+		
+		<select id="selectHashTag" resultType="HashTagVO">
+			SELECT * FROM hashtag WHERE board_num = #{boardNum}
+		</select>
+		
+		<select id="selectCoComment" resultType="CoCommentVO">
+			SELECT 
+				cc.*
+    			,(SELECT user_name FROM users u WHERE u.user_num = cc.user_num) "userName"
+    			FROM
+    			comments c JOIN cocomment cc
+    			ON c.comment_num = cc.comment_num
+    			WHERE c.board_num = #{boardNum}
+				AND cc.use_yn = 'Y'
+		</select>
+		
+		<select id="selectBoardLikeCount" resultType="int">
+			SELECT COUNT(*) FROM boardlike WHERE board_num = #{boardNum}
+		</select>
+		
+		<select id="selectUserBoardLikeYn" resultType="int">
+			SELECT COUNT(*) 
+				FROM boardlike 
+				WHERE user_num = #{userNum}
+				AND board_num = #{boardNum}
+		</select>
+		
+		<insert id="boardLikeY">
+			INSERT INTO 
+				boardlike
+				VALUES(
+						boardlike_seq.NEXTVAL
+						,#{boardNum}
+						,#{userNum}
+						,SYSDATE
+						)
+		</insert>
+		
+		<delete id="boardLikeN">
+			DELETE boardlike 
+				WHERE board_num = #{boardNum}
+				AND user_num = #{userNum}
+		</delete>
+			
+		<insert id="insertComment">
+		
+			INSERT
+				INTO comments(comment_num
+								,board_num
+								,user_num
+								,content
+								)
+						VALUES (
+								commentNum_seq.NEXTVAL
+								,#{boardNum}
+								,#{userNum}
+								,#{content}
+								)
+			
+		</insert>
+		
+		<insert id="insertCoComment">
+			INSERT
+				INTO cocomment
+						(
+						cocomment_num
+						,comment_num
+						,content
+						,user_num
+						)
+					VALUES(
+						CoCommentNum_seq.NEXTVAL
+						,#{commentNum}
+						,#{content}
+						,#{userNum}
+						)
+		</insert>
+		
+		<update id="modifyComment">
+			UPDATE comments
+			    SET
+			    content = #{content}
+			    ,mod_dt = SYSDATE
+			    WHERE
+			    comment_num = #{commentNum}
+		</update>
+		
+		<update id="removeComment">
+			UPDATE comments
+				SET
+				use_yn = 'N'
+				WHERE
+				comment_num = #{commentNum}
+		</update>
+		
+		<update id="modifyCoComment">
+			UPDATE cocomment
+				SET
+				content = #{content}
+				,mod_dt = SYSDATE
+				WHERE
+				cocomment_num = #{cocommentNum}
+		</update>
+		
+		<update id="removeCoComment">
+			UPDATE cocomment
+				SET
+				use_yn = 'N'
+				WHERE
+				cocomment_num = #{cocommentNum}
+		</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

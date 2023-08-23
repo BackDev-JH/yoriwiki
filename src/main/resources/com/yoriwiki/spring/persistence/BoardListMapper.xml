@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+    
+    <mapper namespace ="com.yoriwiki.spring.persistence.BoardListMapper">
+       	<select id="selectlist" parameterType="BoardVO" resultType="BoardVO">
+			SELECT board_num
+	                ,category
+	                ,title
+	                ,introduce
+	                ,time
+	                ,diff
+	                ,source
+	                ,ingre
+	                ,choice_ingre
+	                ,hit
+	                ,src
+	                ,reg_dt
+	                ,mod_dt
+				FROM board
+				WHERE yna = 'Y'
+    	</select>
+    	
+    	<!-- 셀렉트박스 제목 조회 -->
+    	<select id="selecttitle" parameterType="BoardVO" resultType="BoardVO">
+			SELECT title
+				FROM board
+				WHERE title LIKE '%' || #{title} || '%'
+    	</select>
+    	
+ 	    <!-- 셀렉트박스 내용 조회 -->
+    	<select id="selectcontent" parameterType="BoardVO" resultType="BoardVO">
+			select introduce
+			        ,source
+			        ,choice_ingre
+			        ,ingre
+			    from board
+    	</select>
+    	
+    	<!-- 총 게시물 개수조회 -->
+<!--     	<select id="selectTotalCount" resultType="int">
+    		select count(*)
+    			from board
+    	</select> -->
+    	
+    	<!-- 검색 후 게시물 갯수 조회 -->
+ 	   	<select id="searchTotalCount" resultType="int">
+		    SELECT count(*)
+			    FROM(
+			        SELECT ROWNUM rn
+			        			,a.*
+			                FROM(
+			                SELECT
+			                	board_num
+				                ,category
+				                ,title
+				                ,introduce
+				                ,time
+				                ,diff
+				                ,source
+				                ,ingre
+				                ,choice_ingre
+				                ,hit
+				                ,src
+				                ,reg_dt
+				                ,mod_dt
+				                ,(select user_name
+				                		from users
+				                		where b.user_num = user_num) as userName
+		                		,(select path
+		                				from board_media
+		                				where b.board_num = board_num) as path
+		                		,(select DISTINCT LISTAGG(name, ',') WITHIN GROUP(ORDER BY name)
+		                				from hashtag
+		                				where board_num = b.board_num) as name
+		                FROM board b
+		                WHERE b.yna = 'Y'
+		                ) a 
+		                <choose>
+							<when test="type != null and keyword != null and type != '' and keyword != ''"> 
+								WHERE
+							    <if test="type == 'title'">title like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'userName'">a.userName like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'introduce'">introduce like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'name'">board_num in (select board_num
+														                    from hashtag
+														                    where regexp_like(name, #{keyword})) 
+								</if>
+								
+								<if test="category != null and category !=''">
+				            		<if test="category == '25'"> category = '25'</if>
+					            	<if test="category == '63'"> category = '63'</if>
+					            	<if test="category == '56'"> category = '56'</if>
+					            	<if test="category == '54'"> category = '54'</if>
+					            	<if test="category == '55'"> category = '55'</if>
+					            	<if test="category == '60'"> category = '60'</if>
+					            	<if test="category == '53'"> category = '53'</if>
+					            	<if test="category == '52'"> category = '52'</if>
+					            	<if test="category == '61'"> category = '61'</if>
+					            	<if test="category == '57'"> category = '57'</if>
+					            	<if test="category == '58'"> category = '58'</if>
+					            	<if test="category == '65'"> category = '65'</if>
+					            	<if test="category == '64'"> category = '64'</if>
+					            	<if test="category == '68'"> category = '68'</if>
+					            	<if test="category == '66'"> category = '66'</if>
+					            	<if test="category == '69'"> category = '69'</if>
+					            	<if test="category == '59'"> category = '59'</if>
+					            	<if test="category == '62'"> category = '62'</if>
+			            		</if>
+							</when>
+					    	<when test="category != null and category !=''"> 
+					    	WHERE
+					    	<if test="type != null and keyword != null and type != '' and keyword != ''">
+				                <if test="type == 'title'">title like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'userName'">a.userName like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'introduce'">introduce like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'name'">board_num in (select board_num
+														                    from hashtag
+														                    where regexp_like(name, #{keyword})) </if>
+			            	</if>
+			            	<if test="category == '25'"> category = '25'</if>
+					            	<if test="category == '63'"> category = '63'</if>
+					            	<if test="category == '56'"> category = '56'</if>
+					            	<if test="category == '54'"> category = '54'</if>
+					            	<if test="category == '55'"> category = '55'</if>
+					            	<if test="category == '60'"> category = '60'</if>
+					            	<if test="category == '53'"> category = '53'</if>
+					            	<if test="category == '52'"> category = '52'</if>
+					            	<if test="category == '61'"> category = '61'</if>
+					            	<if test="category == '57'"> category = '57'</if>
+					            	<if test="category == '58'"> category = '58'</if>
+					            	<if test="category == '65'"> category = '65'</if>
+					            	<if test="category == '64'"> category = '64'</if>
+					            	<if test="category == '68'"> category = '68'</if>
+					            	<if test="category == '66'"> category = '66'</if>
+					            	<if test="category == '69'"> category = '69'</if>
+					            	<if test="category == '59'"> category = '59'</if>
+					            	<if test="category == '62'"> category = '62'</if>
+					    	</when>
+						</choose>
+					<if test="order != null">
+		           		ORDER BY
+		            	<if test = "order == 'title'">title ASC</if>
+		            	<if test = "order == 'userName'">a.userName ASC</if>
+		            	<if test = "order == 'reg_dt'">reg_dt DESC</if>
+		            	<if test = "order == 'mod_dt'">mod_dt DESC</if>
+           			</if>
+			                )
+    	</select>
+ 
+  	 	 <select id="getListByPaging" resultType="BoardVO">
+  	 		<![CDATA[
+  	 			SELECT *
+				    FROM(
+				        SELECT 
+			                ROWNUM rn
+			                ,board_num
+			                ,category
+			                ,title
+			                ,introduce
+			                ,time
+			                ,diff
+			                ,source
+			                ,ingre
+			                ,choice_ingre
+			                ,hit
+			                ,src
+			                ,reg_dt
+			                ,mod_dt
+			                ,(select user_name from users where b.user_num = user_num) as userName
+			                ,(select file_name from board_media where b.board_num = board_num and step = 0 and order_no = 1) as path
+			                FROM board b
+			                )
+			                
+			        WHERE ( #{amount} * (#{pageNum} - 1)) < rn AND rn <= (#{amount} * #{pageNum})
+		]]>
+		
+<!-- 		 <if test="order != null and order != ''">
+         ORDER BY
+          <if test = "order == 'title'">title ASC</if>
+          <if test = "order == 'userName'">a.userName ASC</if>
+          <if test = "order == 'reg_dt'">reg_dt DESC</if>
+          <if test = "order == 'mod_dt'">mod_dt DESC</if>
+         </if>
+ -->  	 	</select>
+  	 	
+  	 	<select id="searchListByPaging" resultType="BoardVO">
+		    SELECT *
+			    FROM(
+			        SELECT ROWNUM rn
+			        			,a.*
+			                FROM(
+			                SELECT
+			                	board_num
+				                ,category
+				                ,title
+				                ,introduce
+				                ,time
+				                ,diff
+				                ,source
+				                ,ingre
+				                ,choice_ingre
+				                ,hit
+				                ,src
+				                ,reg_dt
+				                ,mod_dt
+				                ,(select DISTINCT user_name
+				                		from users
+				                		where b.user_num = user_num ) as userName
+		                		,(select DISTINCT file_name
+		                				from board_media
+		                				where b.board_num = board_num and step = 0 and order_no = 1) as path
+		                		,(select DISTINCT LISTAGG(name, ',') WITHIN GROUP(ORDER BY name)
+		                				from hashtag
+		                				where board_num = b.board_num) as name
+		                FROM board b
+		                WHERE b.yna = 'Y'
+		                ) a
+			            <choose>
+							<when test="type != null and keyword != null and type != '' and keyword != ''"> 
+							WHERE
+							    <if test="type == 'title'">title like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'userName'">a.userName like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'introduce'">introduce like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'name'">board_num in (select board_num
+														                    from hashtag
+														                    where regexp_like(name, #{keyword})) 
+								</if>
+								
+								<if test="category != null and category !=''">
+				            		<if test="category == '25'"> category = '25'</if>
+					            	<if test="category == '63'"> category = '63'</if>
+					            	<if test="category == '56'"> category = '56'</if>
+					            	<if test="category == '54'"> category = '54'</if>
+					            	<if test="category == '55'"> category = '55'</if>
+					            	<if test="category == '60'"> category = '60'</if>
+					            	<if test="category == '53'"> category = '53'</if>
+					            	<if test="category == '52'"> category = '52'</if>
+					            	<if test="category == '61'"> category = '61'</if>
+					            	<if test="category == '57'"> category = '57'</if>
+					            	<if test="category == '58'"> category = '58'</if>
+					            	<if test="category == '65'"> category = '65'</if>
+					            	<if test="category == '64'"> category = '64'</if>
+					            	<if test="category == '68'"> category = '68'</if>
+					            	<if test="category == '66'"> category = '66'</if>
+					            	<if test="category == '69'"> category = '69'</if>
+					            	<if test="category == '59'"> category = '59'</if>
+					            	<if test="category == '62'"> category = '62'</if>
+			            		</if>
+							</when>
+							
+					    	<when test="category != null and category !=''"> 
+					    	WHERE
+					    	<if test="type != null and keyword != null and type != '' and keyword != ''">
+				                <if test="type == 'title'">title like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'userName'">a.userName like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'introduce'">introduce like '%' || #{keyword} || '%'</if>
+				                <if test="type == 'name'">board_num in (select board_num
+														                    from hashtag
+														                    where regexp_like(name, #{keyword})) </if>
+			            	</if>
+			            	
+			            	<if test="category == '25'"> category = '25'</if>
+			            	<if test="category == '63'"> category = '63'</if>
+			            	<if test="category == '56'"> category = '56'</if>
+			            	<if test="category == '54'"> category = '54'</if>
+			            	<if test="category == '55'"> category = '55'</if>
+			            	<if test="category == '60'"> category = '60'</if>
+			            	<if test="category == '53'"> category = '53'</if>
+			            	<if test="category == '52'"> category = '52'</if>
+			            	<if test="category == '61'"> category = '61'</if>
+			            	<if test="category == '57'"> category = '57'</if>
+			            	<if test="category == '58'"> category = '58'</if>
+			            	<if test="category == '65'"> category = '65'</if>
+			            	<if test="category == '64'"> category = '64'</if>
+			            	<if test="category == '68'"> category = '68'</if>
+			            	<if test="category == '66'"> category = '66'</if>
+			            	<if test="category == '69'"> category = '69'</if>
+			            	<if test="category == '59'"> category = '59'</if>
+			            	<if test="category == '62'"> category = '62'</if>
+					    	</when>
+						</choose>
+			            <if test="order != null and order != ''">
+		           		ORDER BY
+		            	<if test = "order == 'title'">title ASC</if>
+		            	<if test = "order == 'userName'">a.userName ASC</if>
+		            	<if test = "order == 'reg_dt'">reg_dt DESC</if>
+		            	<if test = "order == 'mod_dt'">mod_dt DESC</if>
+           				</if>
+			            ) 
+			    <![CDATA[
+			    WHERE ( #{amount} * (#{pageNum} - 1)) < rn AND rn <= (#{amount} * #{pageNum})
+	 			]]>
+  	 	</select>
+
+  	 	<!-- 조회수 업데이트 -->
+  	 	<update id = "updateHit">
+	  	 	UPDATE board
+	        	SET hit = hit + 1
+	    		WHERE board_num = #{boardNum}
+  	 	</update>
+
+    </mapper>

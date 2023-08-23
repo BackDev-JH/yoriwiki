@@ -1,0 +1,24 @@
+@charset "UTF-8";
+
+
+.btn-primary{
+	text-align :right;
+}
+
+.UserInfo{
+	text-align :right;
+}
+.btn-default:hover{
+	background-color: #2a5e92;
+	color:#fff;
+}
+
+a:hover{
+	color:#fff;
+}
+.cont_tit4>li a{
+	padding : 20px 6px 20px 6px;
+	width: 40px;
+	height:12px;
+	display:block;
+}
